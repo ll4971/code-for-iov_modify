@@ -5,31 +5,33 @@ close all
 num_experiments = 1;
 %% 算法数据
 NP = 100;          % 种群数量
-maxgen = 200;     % 迭代次数
+maxgen_base = 500;     % 迭代次数
 Pc = 0.8;
 Pm = 0.2;
 M = 2;            % 目标函数个数
 rho = 0.5; % 最大收益目标函数买家花费占比
-ka = 10;  
+ka = 10000;  
 v = 0.5;    % 最大收益目标函数卖家收入占比
 epsilon = 1;
-sigma = 6;
-p = 1000; % 传输功率
+sigma = 174;
+omiga = 40; %带宽
+p = 100; % 传输功率
 T_delay = zeros(num_experiments,1); % 总延迟时间
 delay_average_results = zeros(num_experiments,1); % 平均延迟时间
 x = zeros(num_experiments,1); % 车辆数横坐标
 %% 主循环
 for times = 1:num_experiments
-    rng(times);
+    rng(1);
     %% 输入数据
     % 输入买家和卖家的数量
-    m = 80*times; % 买家数量
-    n = 3; % 卖家数量
+    m = 60+5*(times-1); % 买家数量
+    n = 4; % 卖家数量
     swt = 1; % 1：添加紧急程度；0：取消紧急程度
     rep = 0; % 1:存在信誉变化；0：不存在信誉变化
     % 调用 generate_data 函数生成需求和供给数据
     [com, spc, COM, SPC, Ur, r, N, D, x0] = generate_data(m, n, swt, rep);
     dim = m * 2 ;      % 决策变量维数
+    maxgen = maxgen_base + 10*m;
     %% 初始化种群
     [chrom, com, spc] = initpop(NP, M, dim, m, n, com, spc, COM, SPC, N, r ,Ur, D, x0 ,rho, v,ka, epsilon, sigma, p);
     
@@ -79,9 +81,10 @@ for times = 1:num_experiments
 
     %% 传输延迟 + 计算延迟
     y = chrom(1, m + 1: dim);
+    T_delay(times) = T_delay(times) + sum(x0 ./ com);
     for i = 1:m
         h = 1e-8 + exp(2-5*log10(D(i,y(i))));
-        T_delay(times) = T_delay(times) + sum(x0 ./ com) + x0(i) / (spc(i) * log2(1 + p * h /sigma^2));
+        T_delay(times) = T_delay(times) + x0(i) / (spc(i) * log2(1 + p * h /sigma^2));
     end
     %% 平均延迟
     delay_average_results(times) = elapsed_time(maxgen)/maxgen;
@@ -153,11 +156,11 @@ for times = 1:num_experiments
 
 
     % 使用 xlswrite 函数保存数据到 Excel 文件中
-    xlswrite(fullfile(file_path, file_name_01), file_restore_01, times, 'A1'); % 将数据从 A1 单元格开始保存
-    xlswrite(fullfile(file_path, file_name_02), file_restore_02, times, 'A1'); % 将数据从 A1 单元格开始保存
-    xlswrite(fullfile(file_path, file_name_03), file_restore_03, times, 'A1'); % 将数据从 A1 单元格开始保存
-    xlswrite(fullfile(file_path, file_name_04), file_restore_04, times, 'A1'); % 将数据从 A1 单元格开始保存
-    xlswrite(fullfile(file_path, file_name_05), file_restore_05, times, 'A1'); % 将数据从 A1 单元格开始保存
-    xlswrite(fullfile(file_path, file_name_06), file_restore_06, times, 'A1'); % 将数据从 A1 单元格开始保存
+%     xlswrite(fullfile(file_path, file_name_01), file_restore_01, times, 'A1'); % 将数据从 A1 单元格开始保存
+%     xlswrite(fullfile(file_path, file_name_02), file_restore_02, times, 'A1'); % 将数据从 A1 单元格开始保存
+%     xlswrite(fullfile(file_path, file_name_03), file_restore_03, times, 'A1'); % 将数据从 A1 单元格开始保存
+%     xlswrite(fullfile(file_path, file_name_04), file_restore_04, times, 'A1'); % 将数据从 A1 单元格开始保存
+%     xlswrite(fullfile(file_path, file_name_05), file_restore_05, times, 'A1'); % 将数据从 A1 单元格开始保存
+%     xlswrite(fullfile(file_path, file_name_06), file_restore_06, times, 'A1'); % 将数据从 A1 单元格开始保存
 end
 

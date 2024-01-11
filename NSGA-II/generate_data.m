@@ -18,19 +18,18 @@ function [com, spc, COM, SPC, Ur, r, N, D, x0] = generate_data(m, n, swt, rep)
 rng(8);
 
 % 设置需求和供给的均值和标准差
-mu_com = 50; % 买家计算资源需求的均值
-sigma_com = 10; % 买家计算资源需求的标准差
-mu_spc = 30; % 买家频谱资源需求的均值
-sigma_spc = 10; % 买家频谱资源需求的标准差
-mu_COM = 1000; % 卖家计算资源供给的均值
-sigma_COM = 20; % 卖家计算资源供给的标准差
-mu_SPC = 800; % 卖家频谱资源供给的均值
-sigma_SPC = 20; % 卖家频谱资源供给的标准差
-mu_N = 150; % 卖家卖价的均值
-sigma_N = 20; % 卖家卖价的标准差
-mu_x0 = 200; % 买家任务量的均值
-sigma_x0 = 50; % 买家任务量的标准差
-
+mu_com = 4000; % 买家计算资源需求的均值
+sigma_com = 400; % 买家计算资源需求的标准差
+mu_spc = 3000; % 买家频谱资源需求的均值
+sigma_spc = 300; % 买家频谱资源需求的标准差
+mu_COM = 1000000; % 卖家计算资源供给的均值
+sigma_COM = 100000; % 卖家计算资源供给的标准差
+mu_SPC = 800000; % 卖家频谱资源供给的均值
+sigma_SPC = 80000; % 卖家频谱资源供给的标准差
+mu_N = 15; % 卖家卖价的均值
+sigma_N = 2; % 卖家卖价的标准差
+mu_x0 = 500; % 买家任务量均值
+sigma_x0 = 50; % 买家任务量方差
 % 生成服从高斯分布的需求和供给数据
 com = round(normrnd(mu_com, sigma_com, 1, m)); % 买家计算资源需求
 spc = round(normrnd(mu_spc, sigma_spc, 1, m)); % 买家频谱资源需求
@@ -41,12 +40,13 @@ x0 = round(normrnd(mu_x0, sigma_x0, 1, m)); % 买家任务量
 
 % 确保需求和供给都是正数
 com = max(com, 0);
-spc = max(spc, 0);
+spc = max(spc, 1);
 COM = max(COM, 0);
 SPC = max(SPC, 0);
 N = max(N, 0);
+N = N/1000000;
 x0 = max(x0, 0);
-
+x0 = min(1000, x0);
 %% 生成 Ur 变量
 if swt == 1
     Ur = [0.1 0.6 1]*5; % 可选的紧急程度
@@ -64,7 +64,8 @@ end
     % 生成一个大小为 10x7 的矩阵，元素为随机数
     % 使用 lognrnd 函数生成对数正态分布随机数
     % lognrnd(mu, sigma, m, n)生成大小为 m x n 的对数正态分布随机数矩阵
-mu_dis = log(20); % 设置对数正态分布的均值，即 log(40) ≈ 3.68888
+mu_dis = log(200); % 设置对数正态分布的均值，即 log(40) ≈ 3.68888什
 sigma_dis = log(2); % 设置对数正态分布的标准差，即 log(2) ≈ 0.693147
 D = round(lognrnd(mu_dis, sigma_dis, m, n),2); % 距离保留两位小数
+D = min(500, D);
 end

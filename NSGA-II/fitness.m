@@ -22,7 +22,7 @@ for j = 1 : n
    R(j) = 0;
    rRSU(j)=0;
    for i = 1 : m
-      R(j) = R(j) +  (N(j) * r(i,j)* Ur(i) - 0.5) * (lambda(i,j) * com(i) + u(i,j) * spc(i)); % 第j个RSU出售收益
+      R(j) = R(j) +  (N(j) * r(i,j)* Ur(i) - 5e-6) * (lambda(i,j) * com(i) + u(i,j) * spc(i)); % 第j个RSU出售收益
       rRSU(j) = r(i,j)+ rRSU(j);
    end
 end
@@ -39,10 +39,10 @@ end
 U = ka *(-rho * sum(C) + v * sum(R))+ 1/ka *sum(u) ;
 
 %能耗计算
-E = epsilon * sum(com .* x0);
+E = epsilon * sum(x0);
 for i = 1 : m
-    h = 1e-8 + exp(2-5*log10(D(i,y(i))));
-    E = E + p * x0(i) / (spc(i) * log2(1 + p * h /sigma^2));
+    h = 128.1 + 37.5*(log10(D(i,y(i))));
+    E = E + p * x0(i) / (40* spc(i) * log2(1 + p * h /sigma^2));%40是带宽
 end
 
 %% 约束处理

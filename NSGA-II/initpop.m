@@ -17,7 +17,7 @@ for i = 1 : NP
         else
             counter = counter + 1; % 不满足条件时增加计数
             if counter >= 100
-                com = max(floor(com - 1./Ur), 0); % 当计数器达到10时，com内的值全部减10/Ur
+                com = max(floor(com - 1./Ur), 1); % 当计数器达到10时，com内的值全部减10/Ur, 计算资源必须大于0
                 counter = 0; % 重置计数器
             end
         end
@@ -33,7 +33,7 @@ for i = 1 : NP
         else
             counter = counter + 1; % 不满足条件时增加计数
             if counter >= 100
-                spc = max(floor(spc - 1./Ur), 0); % 当计数器达到10时，com内的值全部减10/Ur
+                spc = max(floor(spc - 1./Ur), 1); % 当计数器达到10时，com内的值全部减10/Ur, 频谱资源必须大于0
                 counter = 0; % 重置计数器
             end
         end
