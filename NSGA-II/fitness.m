@@ -61,7 +61,5 @@ for k = 1 : n
 end
 
 
-
-
-
 fit = [-U E] + gfun * 1e8;
+end

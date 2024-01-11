@@ -1,51 +1,41 @@
-clc
+%% 设置多次实验
+clc 
 clear
 close all
+num_experiments = 1;
+%% 算法数据
+NP = 100;          % 种群数量
+maxgen_base = 1500;     % 迭代次数
+Pc = 0.8;
+Pm = 0.2;
+M = 2;            % 目标函数个数
+rho = 0.5; % 最大收益目标函数买家花费占比
+ka = 10000;  
+v = 0.5;    % 最大收益目标函数卖家收入占比
+epsilon = 1;
+sigma = 174;
+omiga = 40; %带宽
+p = 100; % 传输功率
+T_delay = zeros(num_experiments,1); % 总延迟时间
+delay_average_results = zeros(num_experiments,1); % 平均延迟时间
+x = zeros(num_experiments,1); % 车辆数横坐标
 
-num_experiments = 10;
-distanceGenerate(); % 获得距离
+%% 主循环
 for times = 1:num_experiments
     rng(times);
     %% 输入数据
-    com = [30	33	36	46	49	50	54	57	59	59];   % 买家需求计算资源
-    x0 = [150 168 182 230 245 248 266 279 302 311]; % 买家需求任务量
-    spc = [20	20	22	27	30	30	32	33	34	46];   % 买家需求频谱资源
-    COM = [80	50	100	70	150	200	90];   % 卖家供给计算资源
-    SPC = [40	60	80	60	100	140	100];  % 卖家供给传输资源
-    N = [160	150	180	165	190	200	170];  % 卖价
-    
+    % 输入买家和卖家的数量
+    % m = 60+5*(times-1); % 买家数量
+    m = 60;
+    n = 4; % 卖家数量
     swt = 0; % 1：添加紧急程度；0：取消紧急程度
-    if swt == 1
-        Ur = [0.1 0.6 0.1 0.1 0.6 0.1 0.1 1 0.6 0.1]*5; %紧急程度
-    elseif swt ==0
-        Ur = ones(1,10);
-    end
-    
-    r = [0.7	0.2	0.3	0.8	0.1	0.8	0.7	0.3	1	0.7
-        0.6	0.2	0.3	0.7	0.2	0.9	0.8	0.4	0.8	0.6
-        0.6	0.3	0.5	0.6	0.1	0.8	0.8	0.3	0.9	0.6
-        0.6	0.4	0.4	0.7	0.1	0.7	0.7	0.5	0.9	0.6
-        0.7	0.4	0.2	0.8	0.1	0.8	0.9	0.4	0.9	0.5
-        0.5	0.4	0.2	0.9	0.2	0.7	0.8	0.5	0.9	0.7
-        0.6	0.2	0.3	0.6	0.3	0.9	0.7	0.3	0.8	0.6
-        ] * 10;
-    r = r';
-
-    rho = 0.5; % 最大收益目标函数买家花费占比
-    ka = 10;   %
-    v = 0.5;    % 最大收益目标函数卖家收入占比
-    epsilon = 1;
-    sigma = 0.8;
-    p = 1000; % 传输功率
-    m = length(com);  % 买家数量
-    n = length(COM);  % 卖家数量
-
-    dim = m * 2;
+    rep1 = 0; % 1:存在信誉变化；0：不存在信誉变化
+    % 调用 generate_data 函数生成需求和供给数据
+    [com, spc, COM, SPC, Ur, r, N, D, x0] = generate_data(m, n, swt, rep1);
+    dim = m * 2 ;      % 决策变量维数
+    maxgen = maxgen_base + 10*m;
     % MOPSO
     %% 粒子群参数
-    NP = 80;                   % 种群数量
-    M = 2;
-    maxgen = 600;               % 最大迭代次数
     w = 0.4;                    % 惯性系数
     c1 = 2;
     c2 = 2;
@@ -56,7 +46,7 @@ for times = 1:num_experiments
     Vmin = - Vmax;
     %% 初始化
     X = zeros(NP, dim);
-    V = zeros(NP,dim);
+    V = zeros(NP, dim);
     fx = zeros(NP, M);
     for i = 1:NP
         X(i,:) = initpop(m, n, com, spc, COM, SPC);
@@ -71,7 +61,10 @@ for times = 1:num_experiments
     rep.fx = fx(Idx,:);
     rep = updateGrid(rep,ngrid);
     figure(1)
+    start_time = tic;
+    elapsed_time = zeros(maxgen, 1);
     for gen = 1:maxgen
+        tic; % 记录迭代开始时间
         times
         gen
         % 选择leader
@@ -124,7 +117,14 @@ for times = 1:num_experiments
         pause(0.01)
         drawnow;
         axis square;
+        toc
+        delay(gen) = toc; % 记录迭代结束时间，并计算出延迟
+        %% 计算并打印累积用时
+        elapsed_time(gen) = toc(start_time);
+        fprintf('累积用时：%.2f秒\n', toc(start_time));
     end
+    %% 平均延迟
+    delay_average_results(times) = elapsed_time(maxgen)/maxgen;
     gbest = rep.X;
     fgbest = rep.fx;
     [fgbest,IA] = unique(fgbest,'rows');
@@ -160,10 +160,20 @@ for times = 1:num_experiments
     file_restore_02 = FG1;   
     %保存总能耗
     file_name_03 = 'Consumption_results.xlsx'; % 修改为你希望保存的文件名
-    file_restore_03 = FG2;   
+    file_restore_03 = FG2;
+
+    %保存算法平均延迟
+    file_name_05 = 'delay_average_results.xlsx'; % 修改为你希望保存的文件名
+    file_restore_05 = delay_average_results;
+
+    %保存算法总延迟
+    file_name_06 = 'elapsed_time_results.xlsx'; % 修改为你希望保存的文件名
+    file_restore_06 = elapsed_time;
 
     % 使用 xlswrite 函数保存数据到 Excel 文件中
     xlswrite(fullfile(file_path, file_name_01), file_restore_01, times, 'A1'); % 将数据从 A1 单元格开始保存
     xlswrite(fullfile(file_path, file_name_02), file_restore_02, times, 'A1'); % 将数据从 A1 单元格开始保存
     xlswrite(fullfile(file_path, file_name_03), file_restore_03, times, 'A1'); % 将数据从 A1 单元格开始保存
+    xlswrite(fullfile(file_path, file_name_05), file_restore_05, times, 'A1'); % 将数据从 A1 单元格开始保存
+    xlswrite(fullfile(file_path, file_name_06), file_restore_06, times, 'A1'); % 将数据从 A1 单元格开始保存
 end
