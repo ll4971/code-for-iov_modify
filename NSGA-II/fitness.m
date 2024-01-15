@@ -22,7 +22,7 @@ for j = 1 : n
    R(j) = 0;
    rRSU(j)=0;
    for i = 1 : m
-      R(j) = R(j) +  (N(j) * r(i,j)* Ur(i) - 5e-6) * (lambda(i,j) * com(i) + u(i,j) * spc(i)); % 第j个RSU出售收益
+      R(j) = R(j) +  (N(j) * r(i,j)* Ur(i) - 5e-3) * (lambda(i,j) * com(i) + u(i,j) * spc(i)); % 第j个RSU出售收益
       rRSU(j) = r(i,j)+ rRSU(j);
    end
 end

@@ -2,7 +2,7 @@
 clc 
 clear
 close all
-num_experiments = 1;
+num_experiments = 10;
 %% 算法数据
 NP = 200;          % 种群数量
 maxgen_base = 1500;     % 迭代次数
@@ -14,14 +14,14 @@ ka = 10;
 v = 0.5;    % 最大收益目标函数卖家收入占比
 epsilon = 1;
 sigma = 174;
-omiga = 40; %带宽
+omiga = 40; % 带宽
 p = 100; % 传输功率
 T_delay = zeros(num_experiments,1); % 总延迟时间
 delay_average_results = zeros(num_experiments,1); % 平均延迟时间
 x = zeros(num_experiments,1); % 车辆数横坐标
 %% 主循环
 for times = 1:num_experiments
-    rng(10);
+    rng(times);
     %% 输入数据
     % 输入买家和卖家的数量
     % m = 60+5*(times-1); % 买家数量
@@ -125,11 +125,11 @@ for times = 1:num_experiments
     title('总延迟随车辆数的变化')
 
     %% 车辆购买资源花费
-    x = gbest(1,1:m);
+    xt = gbest(1,1:m);
     y = gbest(1,m+1:m*2);
     lambda = zeros(m, n); %计算资源购买
     for i = 1 : m
-       lambda(i,x(i)) = 1; 
+       lambda(i,xt(i)) = 1; 
     end
     u = zeros(m, n); %频谱资源购买
     for i = 1 : m
@@ -173,15 +173,19 @@ for times = 1:num_experiments
     %保存算法总延迟
     file_name_06 = 'elapsed_time_results.xlsx'; % 修改为你希望保存的文件名
     file_restore_06 = elapsed_time;
+
+    %保存车辆购买资源花费
+    file_name_07 = 'resource_consumption_results.xlsx'; % 修改为你希望保存的文件名
+    file_restore_07 = C;
    
 
-
     % 使用 xlswrite 函数保存数据到 Excel 文件中
-%      xlswrite(fullfile(file_path, file_name_01), file_restore_01, times, 'A1'); % 将数据从 A1 单元格开始保存
-%      xlswrite(fullfile(file_path, file_name_02), file_restore_02, times, 'A1'); % 将数据从 A1 单元格开始保存
-%      xlswrite(fullfile(file_path, file_name_03), file_restore_03, times, 'A1'); % 将数据从 A1 单元格开始保存
-%      xlswrite(fullfile(file_path, file_name_04), file_restore_04, times, 'A1'); % 将数据从 A1 单元格开始保存
-%      xlswrite(fullfile(file_path, file_name_05), file_restore_05, times, 'A1'); % 将数据从 A1 单元格开始保存
-%      xlswrite(fullfile(file_path, file_name_06), file_restore_06, times, 'A1'); % 将数据从 A1 单元格开始保存
+     xlswrite(fullfile(file_path, file_name_01), file_restore_01, times, 'A1'); % 将数据从 A1 单元格开始保存
+     xlswrite(fullfile(file_path, file_name_02), file_restore_02, times, 'A1'); % 将数据从 A1 单元格开始保存
+     xlswrite(fullfile(file_path, file_name_03), file_restore_03, times, 'A1'); % 将数据从 A1 单元格开始保存
+     xlswrite(fullfile(file_path, file_name_04), file_restore_04, times, 'A1'); % 将数据从 A1 单元格开始保存
+     xlswrite(fullfile(file_path, file_name_05), file_restore_05, times, 'A1'); % 将数据从 A1 单元格开始保存
+     xlswrite(fullfile(file_path, file_name_06), file_restore_06, times, 'A1'); % 将数据从 A1 单元格开始保存
+     xlswrite(fullfile(file_path, file_name_07), file_restore_07, times, 'A1'); % 将数据从 A1 单元格开始保存
 end
 
