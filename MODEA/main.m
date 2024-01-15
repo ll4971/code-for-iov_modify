@@ -2,7 +2,7 @@
 clc 
 clear
 close all
-num_experiments = 10;
+num_experiments = 1;
 %% 算法数据
 NP = 200;          % 种群数量
 maxgen_base = 200;     % 迭代次数
@@ -10,7 +10,7 @@ Pc = 0.8;
 Pm = 0.2;
 M = 2;            % 目标函数个数
 rho = 0.5; % 最大收益目标函数买家花费占比
-ka = 10000;  
+ka = 10;  
 v = 0.5;    % 最大收益目标函数卖家收入占比
 epsilon = 1;
 sigma = 174;

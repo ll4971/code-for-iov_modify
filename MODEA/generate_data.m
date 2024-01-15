@@ -44,7 +44,7 @@ spc = max(spc, 1);
 COM = max(COM, 0);
 SPC = max(SPC, 0);
 N = max(N, 0);
-N = N/1000000;
+N = N/1000;
 x0 = max(x0, 0);
 x0 = min(1000, x0);
 %% 生成 Ur 变量

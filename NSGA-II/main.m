@@ -10,7 +10,7 @@ Pc = 0.8;
 Pm = 0.2;
 M = 2;            % 目标函数个数
 rho = 0.5; % 最大收益目标函数买家花费占比
-ka = 10000;  
+ka = 10;  
 v = 0.5;    % 最大收益目标函数卖家收入占比
 epsilon = 1;
 sigma = 174;
@@ -27,7 +27,7 @@ for times = 1:num_experiments
     % m = 60+5*(times-1); % 买家数量
     m = 60;
     n = 16; % 卖家数量
-    swt = 1; % 1：添加紧急程度；0：取消紧急程度
+    swt = 0; % 1：添加紧急程度；0：取消紧急程度
     rep = 0; % 1:存在信誉变化；0：不存在信誉变化
     % 调用 generate_data 函数生成需求和供给数据
     [com, spc, COM, SPC, Ur, r, N, D, x0] = generate_data(m, n, swt, rep);
@@ -123,6 +123,26 @@ for times = 1:num_experiments
     xlabel('车辆数') 
     ylabel('总延迟') 
     title('总延迟随车辆数的变化')
+
+    %% 车辆购买资源花费
+    x = gbest(1,1:m);
+    y = gbest(1,m+1:m*2);
+    lambda = zeros(m, n); %计算资源购买
+    for i = 1 : m
+       lambda(i,x(i)) = 1; 
+    end
+    u = zeros(m, n); %频谱资源购买
+    for i = 1 : m
+       u(i,y(i)) = 1; 
+    end
+    C = zeros(1, m);
+    for i = 1 : m
+       C(i) = 0;
+       for j = 1 : n
+          C(i) = C(i) +  N(j) / r(i,j) /Ur(i)* (lambda(i,j) * com(i) + u(i,j) * spc(i)); % 第i辆V购买花费
+       end
+    end
+
     %% 保存至excel
     if swt == 0
         file_path = '../NSGA-II_results'; % 修改为你希望保存的文件夹路径
@@ -153,7 +173,7 @@ for times = 1:num_experiments
     %保存算法总延迟
     file_name_06 = 'elapsed_time_results.xlsx'; % 修改为你希望保存的文件名
     file_restore_06 = elapsed_time;
-
+   
 
 
     % 使用 xlswrite 函数保存数据到 Excel 文件中
