@@ -21,13 +21,13 @@ delay_average_results = zeros(num_experiments,1); % 平均延迟时间
 x = zeros(num_experiments,1); % 车辆数横坐标
 %% 主循环
 for times = 1:num_experiments
-    rng(times);
+    rng(10);
     %% 输入数据
     % 输入买家和卖家的数量
-    % m = 60+5*(times-1); % 买家数量
-    m = 60;
+    m = 60+5*(times-1); % 买家数量
+    %m = 60;
     n = 16; % 卖家数量
-    swt = 0; % 1：添加紧急程度；0：取消紧急程度
+    swt = 1; % 1：添加紧急程度；0：取消紧急程度
     rep = 0; % 1:存在信誉变化；0：不存在信誉变化
     % 调用 generate_data 函数生成需求和供给数据
     [com, spc, COM, SPC, Ur, r, N, D, x0] = generate_data(m, n, swt, rep);
