@@ -2,7 +2,7 @@
 clc 
 clear
 close all
-num_experiments = 10;
+num_experiments = 1;
 %% 算法数据
 NP = 200;          % 种群数量
 maxgen_base = 1500;     % 迭代次数
