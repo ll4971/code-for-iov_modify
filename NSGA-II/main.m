@@ -24,7 +24,7 @@ for times = 1:num_experiments
     rng(10);
     %% 输入数据
     % 输入买家和卖家的数量
-    m = 60+5*(times-1); % 买家数量
+    m = 60+10*(times-1); % 买家数量
     %m = 60;
     n = 16; % 卖家数量
     swt = 0; % 1：添加紧急程度；0：取消紧急程度
@@ -85,7 +85,7 @@ for times = 1:num_experiments
     T_delay(times) = T_delay(times) + sum(x0 ./ com);
     for i = 1:m
         h = 128.1 + 37.5*(log10(D(i,y(i))));
-        T_delay(times) = T_delay(times) + x0(i) / (0.04* spc(i) * log2(1 + p * h /sigma^2));%40是带宽
+        T_delay(times) = T_delay(times) + x0(i) / (0.4* spc(i) * log2(1 + p * h /sigma^2));%40是带宽
     end
     %% 平均延迟
     delay_average_results(times) = elapsed_time(maxgen)/maxgen;

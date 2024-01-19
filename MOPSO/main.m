@@ -25,8 +25,8 @@ for times = 1:num_experiments
     rng(times);
     %% 输入数据
     % 输入买家和卖家的数量
-    % m = 60+5*(times-1); % 买家数量
-    m = 60;
+    m = 60+10*(times-1); % 买家数量
+    % m = 60;
     n = 16; % 卖家数量
     swt = 0; % 1：添加紧急程度；0：取消紧急程度
     rep1 = 0; % 1:存在信誉变化；0：不存在信誉变化
@@ -123,6 +123,10 @@ for times = 1:num_experiments
         elapsed_time(gen) = toc(start_time);
         fprintf('累积用时：%.2f秒\n', toc(start_time));
     end
+
+
+    %% 平均延迟
+    delay_average_results(times) = elapsed_time(maxgen)/maxgen;
     %% 平均延迟
     delay_average_results(times) = elapsed_time(maxgen)/maxgen;
     gbest = rep.X;
@@ -148,7 +152,17 @@ for times = 1:num_experiments
     ylabel('Resource consumption')
     grid on
     fprintf('帕累托解集数量为 %d\n',size(gbest,1))
-    %%保存至excel
+
+
+    %% 传输延迟 + 计算延迟
+    y = gbest;
+    T_delay(times) = T_delay(times) + sum(x0 ./ com);
+    for i = 1:m
+        h = 128.1 + 37.5*(log10(D(i,y(i))));
+        T_delay(times) = T_delay(times) + x0(i) / (0.4* spc(i) * log2(1 + p * h /sigma^2));%40是带宽
+    end
+
+    %% 保存至excel
     file_path = '../MOPSO_results'; % 修改为你希望保存的文件夹路径
 
     %保存帕累托解集
@@ -170,10 +184,14 @@ for times = 1:num_experiments
     file_name_06 = 'elapsed_time_results.xlsx'; % 修改为你希望保存的文件名
     file_restore_06 = elapsed_time;
 
+    %保存总延迟
+    file_name_04 = 'T_delay_results.xlsx'; % 修改为你希望保存的文件名
+    file_restore_04 = [x, T_delay];
     % 使用 xlswrite 函数保存数据到 Excel 文件中
     xlswrite(fullfile(file_path, file_name_01), file_restore_01, times, 'A1'); % 将数据从 A1 单元格开始保存
     xlswrite(fullfile(file_path, file_name_02), file_restore_02, times, 'A1'); % 将数据从 A1 单元格开始保存
     xlswrite(fullfile(file_path, file_name_03), file_restore_03, times, 'A1'); % 将数据从 A1 单元格开始保存
     xlswrite(fullfile(file_path, file_name_05), file_restore_05, times, 'A1'); % 将数据从 A1 单元格开始保存
     xlswrite(fullfile(file_path, file_name_06), file_restore_06, times, 'A1'); % 将数据从 A1 单元格开始保存
+    xlswrite(fullfile(file_path, file_name_04), file_restore_04, times, 'A1'); % 将数据从 A1 单元格开始保存
 end
