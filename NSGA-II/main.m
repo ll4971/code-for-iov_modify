@@ -27,10 +27,10 @@ for times = 1:num_experiments
     m = 60+5*(times-1); % 买家数量
     %m = 60;
     n = 16; % 卖家数量
-    swt = 1; % 1：添加紧急程度；0：取消紧急程度
+    swt = 0; % 1：添加紧急程度；0：取消紧急程度
     rep = 0; % 1:存在信誉变化；0：不存在信誉变化
     % 调用 generate_data 函数生成需求和供给数据
-    [com, spc, COM, SPC, Ur, r, N, D, x0] = generate_data(m, n, swt, rep);
+    [com, spc, COM, SPC, Ur, r, N, D, x0, Ur_order] = generate_data(m, n, swt, rep);
     dim = m * 2 ;      % 决策变量维数
     maxgen = maxgen_base + 10*m;
     %% 初始化种群
@@ -135,6 +135,7 @@ for times = 1:num_experiments
     for i = 1 : m
        u(i,y(i)) = 1; 
     end
+
     C = zeros(1, m);
     for i = 1 : m
        C(i) = 0;
@@ -143,6 +144,20 @@ for times = 1:num_experiments
        end
     end
 
+    %% RSU的收益
+    R = zeros(1, n);
+    percent = zeros(1,n);
+    R_1 = zeros(1, n);
+    for j = 1 : n
+        R(j) = 0;
+        for i = 1 : m
+            if Ur_order(i) == 5
+                R_1(j) = R_1(j) + (N(j) * r(i,j)* Ur(i) - 5e-3) * (lambda(i,j) * com(i) + u(i,j) * spc(i));
+            end
+            R(j) = R(j) +  (N(j) * r(i,j)* Ur(i) - 5e-3) * (lambda(i,j) * com(i) + u(i,j) * spc(i)); % 第j个RSU出售收益
+        end
+        percent(j) = R_1(j)/R(j);
+    end
     %% 保存至excel
     if swt == 0
         file_path = '../NSGA-II_results'; % 修改为你希望保存的文件夹路径
@@ -177,7 +192,10 @@ for times = 1:num_experiments
     %保存车辆购买资源花费
     file_name_07 = 'resource_consumption_results.xlsx'; % 修改为你希望保存的文件名
     file_restore_07 = C;
-   
+    
+    %保存RSU收益
+    file_name_08 = 'RSU_revenue_results.xlsx'; % 修改为你希望保存的文件名
+    file_restore_08 = [R, percent];
 
     % 使用 xlswrite 函数保存数据到 Excel 文件中
      xlswrite(fullfile(file_path, file_name_01), file_restore_01, times, 'A1'); % 将数据从 A1 单元格开始保存
@@ -187,5 +205,6 @@ for times = 1:num_experiments
      xlswrite(fullfile(file_path, file_name_05), file_restore_05, times, 'A1'); % 将数据从 A1 单元格开始保存
      xlswrite(fullfile(file_path, file_name_06), file_restore_06, times, 'A1'); % 将数据从 A1 单元格开始保存
      xlswrite(fullfile(file_path, file_name_07), file_restore_07, times, 'A1'); % 将数据从 A1 单元格开始保存
+     xlswrite(fullfile(file_path, file_name_08), file_restore_08, times, 'A1'); % 将数据从 A1 单元格开始保存
 end
 

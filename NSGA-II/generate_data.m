@@ -1,4 +1,4 @@
-function [com, spc, COM, SPC, Ur, r, N, D, x0] = generate_data(m, n, swt, rep)
+function [com, spc, COM, SPC, Ur, r, N, D, x0, Ur_order] = generate_data(m, n, swt, rep)
 % 生成服从高斯分布的需求和供给数据
 % 输入参数：
 % m - 买家的数量
@@ -48,12 +48,18 @@ N = N/1000;
 x0 = max(x0, 0);
 x0 = min(1000, x0);
 %% 生成 Ur 变量
+
+Ur_order = [0.1 0.1 0.1 0.6 0.6 0.6 0.1 0.1 0.1 1 1]*5; % 可选的紧急程度
+Ur_order = Ur_order(randi(length(Ur_order),1,m)); % 随机为每个买家分配一个紧急程度
+
 if swt == 1
-Ur = [0.1 0.1 0.1 0.6 0.6 0.6 0.1 0.1 0.1 1 1]*5; % 可选的紧急程度
-Ur = Ur(randi(length(Ur),1,m)); % 随机为每个买家分配一个紧急程度
+Ur = Ur_order; % 可选的紧急程度
 elseif swt ==0
     Ur = ones(1,m);
 end
+
+
+
 
 if rep == 0
 %% 生成 r 变量
